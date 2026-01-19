@@ -10,10 +10,10 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 
-// 🔗 Connect to MongoDB
+//  Connect to MongoDB
 connectDB();
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(` Server running on port ${PORT}`);
 });
 
