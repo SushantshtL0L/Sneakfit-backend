@@ -5,6 +5,10 @@ export class UserRepository {
     return User.findOne({ email });
   }
 
+  static findByUsername(username: string) {
+    return User.findOne({ username });
+  }
+
   static create(data: any) {
     return User.create(data);
   }

@@ -4,15 +4,27 @@ import { UserRepository } from "../repositories/user.repository";
 import { HttpError } from "../errors/http-error";
 
 export class AuthService {
-  static async register(email: string, password: string) {
-    const existingUser = await UserRepository.findByEmail(email);
-    if (existingUser) {
+  static async register(
+    name: string,
+    username: string,
+    email: string,
+    password: string
+  ) {
+    const existingEmail = await UserRepository.findByEmail(email);
+    if (existingEmail) {
       throw new HttpError(409, "Email already exists");
+    }
+
+    const existingUsername = await UserRepository.findByUsername(username);
+    if (existingUsername) {
+      throw new HttpError(409, "Username already exists");
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await UserRepository.create({
+      name,
+      username,
       email,
       password: hashedPassword,
     });

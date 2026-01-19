@@ -1,10 +1,12 @@
-import { AuthService } from "@/services/auth.service";
+import { AuthService } from "../services/auth.service";
 import { Request, Response } from "express";
 
 
 export class AuthController {
   static async register(req: Request, res: Response) {
     const user = await AuthService.register(
+      req.body.name,
+      req.body.username,
       req.body.email,
       req.body.password
     );
