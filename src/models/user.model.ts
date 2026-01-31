@@ -1,18 +1,32 @@
 import { Schema, model, Document } from "mongoose";
 
 export interface IUser extends Document {
+  name: string;
   email: string;
+  username: string;
   password: string;
   role: "user" | "admin";
+  image?: string;
 }
 
 const userSchema = new Schema<IUser>(
   {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     email: {
       type: String,
       required: true,
       unique: true,
       lowercase: true,
+      trim: true,
+    },
+    username: {
+      type: String,
+      required: true,
+      unique: true,
       trim: true,
     },
     password: {
@@ -23,6 +37,10 @@ const userSchema = new Schema<IUser>(
       type: String,
       enum: ["user", "admin"],
       default: "user",
+    },
+    image: {
+      type: String,
+      required: false,
     },
   },
   { timestamps: true }
