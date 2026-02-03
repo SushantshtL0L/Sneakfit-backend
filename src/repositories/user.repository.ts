@@ -20,4 +20,12 @@ export class UserRepository {
   static update(id: string, data: any) {
     return User.findByIdAndUpdate(id, data, { new: true });
   }
+
+  static findAll() {
+    return User.find({});
+  }
+
+  static deleteById(id: string) {
+    return User.findByIdAndDelete(id);
+  }
 }
