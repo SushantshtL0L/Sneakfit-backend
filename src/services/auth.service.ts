@@ -4,6 +4,7 @@ import { UserRepository } from "../repositories/user.repository";
 import { HttpError } from "../errors/http-error";
 
 export class AuthService {
+<<<<<<< HEAD
   static async register(
     name: string,
     username: string,
@@ -12,6 +13,11 @@ export class AuthService {
   ) {
     const existingEmail = await UserRepository.findByEmail(email);
     if (existingEmail) {
+=======
+  static async register(name: string, email: string, username: string, password: string) {
+    const existingUser = await UserRepository.findByEmail(email);
+    if (existingUser) {
+>>>>>>> sprint-2
       throw new HttpError(409, "Email already exists");
     }
 
@@ -24,8 +30,12 @@ export class AuthService {
 
     const user = await UserRepository.create({
       name,
+<<<<<<< HEAD
       username,
+=======
+>>>>>>> sprint-2
       email,
+      username,
       password: hashedPassword,
     });
 

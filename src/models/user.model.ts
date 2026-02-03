@@ -2,10 +2,15 @@ import { Schema, model, Document } from "mongoose";
 
 export interface IUser extends Document {
   name: string;
+<<<<<<< HEAD
   username: string;
+=======
+>>>>>>> sprint-2
   email: string;
+  username: string;
   password: string;
   role: "user" | "admin";
+  image?: string;
 }
 
 const userSchema = new Schema<IUser>(
@@ -15,17 +20,26 @@ const userSchema = new Schema<IUser>(
       required: true,
       trim: true,
     },
+<<<<<<< HEAD
     username: {
       type: String,
       required: true,
       unique: true,
       trim: true,
     },
+=======
+>>>>>>> sprint-2
     email: {
       type: String,
       required: true,
       unique: true,
       lowercase: true,
+      trim: true,
+    },
+    username: {
+      type: String,
+      required: true,
+      unique: true,
       trim: true,
     },
     password: {
@@ -36,6 +50,10 @@ const userSchema = new Schema<IUser>(
       type: String,
       enum: ["user", "admin"],
       default: "user",
+    },
+    image: {
+      type: String,
+      required: false,
     },
   },
   { timestamps: true }

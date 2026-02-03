@@ -12,4 +12,12 @@ export class UserRepository {
   static create(data: any) {
     return User.create(data);
   }
+
+  static findById(id: string) {
+    return User.findById(id);
+  }
+
+  static update(id: string, data: any) {
+    return User.findByIdAndUpdate(id, data, { new: true });
+  }
 }
