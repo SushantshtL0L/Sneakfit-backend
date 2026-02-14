@@ -1,13 +1,9 @@
-import { connectDB } from "@/database";
-import mongoose from "mongoose";
+import { connectDBTest, closeDBTest } from "../database";
 
-// before all test starts
 beforeAll(async () => {
-    // can connect to test database or other test engines
-    await connectDB();
+    await connectDBTest();
 });
 
-// after all tests are done
 afterAll(async () => {
-    await mongoose.connection.close();
+    await closeDBTest();
 });
