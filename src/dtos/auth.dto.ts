@@ -12,3 +12,12 @@ export const LoginDto = z.object({
   password: z.string().min(6),
 });
 
+export const ForgotPasswordDto = z.object({
+  email: z.string().email(),
+});
+
+export const ResetPasswordDto = z.object({
+  token: z.string(),
+  newPassword: z.string().min(6),
+});
+
