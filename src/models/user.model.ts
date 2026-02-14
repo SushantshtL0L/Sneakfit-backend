@@ -2,14 +2,10 @@ import { Schema, model, Document } from "mongoose";
 
 export interface IUser extends Document {
   name: string;
-<<<<<<< HEAD
-  username: string;
-=======
->>>>>>> sprint-2
   email: string;
   username: string;
   password: string;
-  role: "user" | "admin";
+  role: "user" | "admin" | "seller";
   image?: string;
 }
 
@@ -20,15 +16,6 @@ const userSchema = new Schema<IUser>(
       required: true,
       trim: true,
     },
-<<<<<<< HEAD
-    username: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-    },
-=======
->>>>>>> sprint-2
     email: {
       type: String,
       required: true,
@@ -48,7 +35,7 @@ const userSchema = new Schema<IUser>(
     },
     role: {
       type: String,
-      enum: ["user", "admin"],
+      enum: ["user", "admin", "seller"],
       default: "user",
     },
     image: {
