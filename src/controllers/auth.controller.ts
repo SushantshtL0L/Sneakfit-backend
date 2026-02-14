@@ -6,13 +6,10 @@ export class AuthController {
   static async register(req: Request, res: Response) {
     const user = await AuthService.register(
       req.body.name,
-<<<<<<< HEAD
-      req.body.username,
-=======
->>>>>>> sprint-2
       req.body.email,
       req.body.username,
-      req.body.password
+      req.body.password,
+      req.body.role
     );
 
     res.status(201).json({
@@ -37,5 +34,17 @@ export class AuthController {
       message: "Login successful",
       token,
     });
+  }
+
+  static async forgotPassword(req: Request, res: Response) {
+    const { email } = req.body;
+    await AuthService.sendResetPasswordEmail(email);
+    res.status(200).json({ message: "Password reset link sent to your email" });
+  }
+
+  static async resetPassword(req: Request, res: Response) {
+    const { token, newPassword } = req.body;
+    await AuthService.resetPassword(token, newPassword);
+    res.status(200).json({ message: "Password reset successful" });
   }
 }
