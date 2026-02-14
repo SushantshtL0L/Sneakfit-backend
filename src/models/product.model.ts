@@ -4,7 +4,10 @@ export interface IProduct extends Document {
   name?: string;
   description?: string;
   condition?: "new" | "thrift";
+  price?: number;
+  brand?: string;
   image: string;
+  seller: Schema.Types.ObjectId;
 }
 
 const productSchema = new Schema<IProduct>(
@@ -18,6 +21,14 @@ const productSchema = new Schema<IProduct>(
       type: String,
       required: false,
     },
+    brand: {
+      type: String,
+      required: false,
+    },
+    price: {
+      type: Number,
+      required: false,
+    },
     condition: {
       type: String,
       enum: ["new", "thrift"],
@@ -25,6 +36,11 @@ const productSchema = new Schema<IProduct>(
     },
     image: {
       type: String,
+      required: true,
+    },
+    seller: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
   },
