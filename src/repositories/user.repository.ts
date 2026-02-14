@@ -21,8 +21,27 @@ export class UserRepository {
     return User.findByIdAndUpdate(id, data, { new: true });
   }
 
-  static findAll() {
-    return User.find({});
+  static findAll(query: any = {}) {
+    return User.find(query).sort({ createdAt: -1 });
+  }
+
+  static async findPaginated(query: any = {}, page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit;
+    const [users, total] = await Promise.all([
+      User.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      User.countDocuments(query),
+    ]);
+
+    return {
+      users,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   static deleteById(id: string) {
