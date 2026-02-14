@@ -2,6 +2,7 @@ import { Router } from "express";
 import { AdminUserController } from "../controllers/admin-user.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { adminMiddleware } from "../middlewares/admin.middleware";
+import { asyncHandler } from "../middlewares/async-handler";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -29,10 +30,10 @@ const upload = multer({ storage });
 // All routes here require authentication AND admin role
 router.use(authMiddleware, adminMiddleware);
 
-router.get("/", AdminUserController.getAllUsers);
-router.get("/:id", AdminUserController.getUserById);
-router.post("/", upload.single("image"), AdminUserController.createUser);
-router.put("/:id", upload.single("image"), AdminUserController.updateUser);
-router.delete("/:id", AdminUserController.deleteUser);
+router.get("/", asyncHandler(AdminUserController.getAllUsers));
+router.get("/:id", asyncHandler(AdminUserController.getUserById));
+router.post("/", upload.single("image"), asyncHandler(AdminUserController.createUser));
+router.put("/:id", upload.single("image"), asyncHandler(AdminUserController.updateUser));
+router.delete("/:id", asyncHandler(AdminUserController.deleteUser));
 
 export default router;

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { UserController } from "../controllers/user.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
+import { asyncHandler } from "../middlewares/async-handler";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -25,7 +26,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-router.get("/me", authMiddleware, UserController.getMe);
-router.put("/profile", authMiddleware, upload.single("image"), UserController.updateProfile);
+router.get("/me", authMiddleware, asyncHandler(UserController.getMe));
+router.put("/profile", authMiddleware, upload.single("image"), asyncHandler(UserController.updateProfile));
 
 export default router;
