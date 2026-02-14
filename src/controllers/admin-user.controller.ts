@@ -5,7 +5,23 @@ import { AuthService } from "../services/auth.service";
 export class AdminUserController {
   static async getAllUsers(req: Request, res: Response) {
     try {
-      const users = await UserRepository.findAll();
+      const { role, page, limit } = req.query;
+      const query: any = {};
+      
+      if (role && role !== 'all') {
+        query.role = role;
+      }
+
+      // Backward compatibility 
+      // Otherwise, return the original raw array (for Flutter).
+      if (page || limit) {
+        const pageNum = parseInt(page as string) || 1;
+        const limitNum = parseInt(limit as string) || 10;
+        const result = await UserRepository.findPaginated(query, pageNum, limitNum);
+        return res.status(200).json(result);
+      }
+
+      const users = await UserRepository.findAll(query);
       res.status(200).json(users);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -37,10 +53,10 @@ export class AdminUserController {
         updateData.image = `/user_photos/${req.file.filename}`;
       }
 
-      // Using register logic to ensure password hashing
+     
       const user = await AuthService.register(name, email, username, password);
       
-      // If a specific role or image was provided, update the created user
+      
       if (role || req.file) {
           await UserRepository.update(user._id as unknown as string, { 
               ...(role && { role }), 
