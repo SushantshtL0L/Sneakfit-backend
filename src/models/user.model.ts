@@ -7,6 +7,8 @@ export interface IUser extends Document {
   password: string;
   role: "user" | "admin" | "seller";
   image?: string;
+  resetPasswordOTP?: string;
+  resetPasswordOTPExpiry?: Date;
 }
 
 const userSchema = new Schema<IUser>(
@@ -40,6 +42,14 @@ const userSchema = new Schema<IUser>(
     },
     image: {
       type: String,
+      required: false,
+    },
+    resetPasswordOTP: {
+      type: String,
+      required: false,
+    },
+    resetPasswordOTPExpiry: {
+      type: Date,
       required: false,
     },
   },

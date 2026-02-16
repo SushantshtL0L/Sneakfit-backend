@@ -11,7 +11,7 @@ const app = express();
 
 
 const corsOptions = {
-  origin: ["http://localhost:3000", "http://127.0.0.1:3000"],
+  origin: true, // Allow all origins (needed for mobile app development)
   credentials: true,
 };
 

@@ -47,4 +47,8 @@ export class UserRepository {
   static deleteById(id: string) {
     return User.findByIdAndDelete(id);
   }
+
+  static findUserByOTP(otp: string) {
+    return User.findOne({ resetPasswordOTP: otp });
+  }
 }
