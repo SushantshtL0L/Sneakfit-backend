@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "server": "ts-node-dev src/index.ts",
+    "dev": "npx tsx watch src/index.ts",
+    "server": "npx tsx watch src/index.ts",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
