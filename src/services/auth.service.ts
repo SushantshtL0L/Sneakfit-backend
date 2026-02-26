@@ -46,7 +46,7 @@ export class AuthService {
       { expiresIn: "1d" }
     );
 
-    return token;
+    return { token, user };
   }
 
   static async sendResetPasswordEmail(email: string) {
@@ -133,5 +133,21 @@ export class AuthService {
       if (error instanceof HttpError) throw error;
       throw new HttpError(401, "Invalid or expired reset token");
     }
+  }
+
+  static async changePassword(userId: string, oldPassword: string, newPassword: string) {
+    const user = await UserRepository.findById(userId);
+    if (!user) {
+      throw new HttpError(404, "User not found");
+    }
+
+    const isValid = await bcrypt.compare(oldPassword, user.password);
+    if (!isValid) {
+      throw new HttpError(401, "Incorrect old password");
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await UserRepository.update(userId as any, { password: hashedPassword });
+    return true;
   }
 }

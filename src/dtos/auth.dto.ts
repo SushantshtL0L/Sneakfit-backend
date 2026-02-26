@@ -20,4 +20,7 @@ export const ResetPasswordDto = z.object({
   token: z.string(),
   newPassword: z.string().min(6),
 });
-
+export const ChangePasswordDto = z.object({
+  oldPassword: z.string().min(6),
+  newPassword: z.string().min(6),
+});

@@ -25,7 +25,7 @@ export class AuthController {
   }
 
   static async login(req: Request, res: Response) {
-    const token = await AuthService.login(
+    const { token, user } = await AuthService.login(
       req.body.email,
       req.body.password
     );
@@ -33,6 +33,14 @@ export class AuthController {
     res.status(200).json({
       message: "Login successful",
       token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+        image: user.image,
+      },
     });
   }
 
@@ -46,5 +54,12 @@ export class AuthController {
     const { token, newPassword } = req.body;
     await AuthService.resetPassword(token, newPassword);
     res.status(200).json({ message: "Password reset successful" });
+  }
+
+  static async changePassword(req: Request, res: Response) {
+    const userId = (req as any).user.id;
+    const { oldPassword, newPassword } = req.body;
+    await AuthService.changePassword(userId, oldPassword, newPassword);
+    res.status(200).json({ message: "Password changed successfully" });
   }
 }
