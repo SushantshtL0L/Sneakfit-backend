@@ -4,7 +4,7 @@ import { ProductService } from "../services/product.service";
 export class ProductController {
   static async createProduct(req: Request, res: Response) {
     try {
-      const { name, description, condition, price, brand } = req.body;
+      const { name, description, condition, price, brand, size, color, category } = req.body;
       const image = req.file ? `/item_photos/${req.file.filename}` : "";
 
       if (!image) {
@@ -19,8 +19,11 @@ export class ProductController {
         condition,
         price: price ? Number(price) : undefined,
         brand,
+        size,
+        color,
         image,
         seller: (req as any).user.id,
+        category,
       });
 
       res.status(201).json({
@@ -34,12 +37,36 @@ export class ProductController {
 
   static async getAllProducts(req: Request, res: Response) {
     try {
-      const { page, limit } = req.query;
+      const { page, limit, search, condition, category, seller } = req.query;
 
-      if (page || limit) {
+      // Build search query
+      const query: any = {};
+      if (search) {
+        query.name = { $regex: `^${search}`, $options: "i" };
+      }
+      
+      if (condition) {
+        query.condition = condition;
+      }
+
+      if (category) {
+        query.category = category;
+      }
+
+      if (seller) {
+        try {
+          const mongoose = require("mongoose");
+          query.seller = new mongoose.Types.ObjectId(seller as string);
+        } catch {
+          // Invalid ObjectId string — return empty results
+          return res.status(200).json({ products: [], total: 0, totalPages: 0 });
+        }
+      }
+
+      if (page || limit || search || condition || category || seller) {
         const pageNum = parseInt(page as string) || 1;
         const limitNum = parseInt(limit as string) || 10;
-        const result = await ProductService.getPaginatedProducts(pageNum, limitNum);
+        const result = await ProductService.getPaginatedProducts(pageNum, limitNum, query);
         return res.status(200).json(result);
       }
 
@@ -80,7 +107,12 @@ export class ProductController {
         return res.status(403).json({ message: "You are not authorized to update this product" });
       }
 
-      const updatedProduct = await ProductService.updateProduct(id, req.body);
+      const updateData = { ...req.body };
+      if (req.file) {
+        updateData.image = `/item_photos/${req.file.filename}`;
+      }
+
+      const updatedProduct = await ProductService.updateProduct(id, updateData);
       res.status(200).json(updatedProduct);
     } catch (error: any) {
       res.status(500).json({ message: error.message });

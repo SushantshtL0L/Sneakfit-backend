@@ -7,13 +7,13 @@ export class ProductService {
   }
 
   static async getAllProducts() {
-    return await Product.find().sort({ createdAt: -1 });
+    return await Product.find().populate("category").sort({ createdAt: -1 });
   }
 
   static async getPaginatedProducts(page: number = 1, limit: number = 10, query: any = {}) {
     const skip = (page - 1) * limit;
     const [products, total] = await Promise.all([
-      Product.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Product.find(query).populate("category").sort({ createdAt: -1 }).skip(skip).limit(limit),
       Product.countDocuments(query),
     ]);
 
@@ -26,7 +26,7 @@ export class ProductService {
   }
 
   static async getProductById(id: string) {
-    return await Product.findById(id);
+    return await Product.findById(id).populate("category");
   }
 
   static async updateProduct(id: string, data: Partial<IProduct>) {
