@@ -63,10 +63,16 @@ export class ProductController {
         }
       }
 
-      if (page || limit || search || condition || category || seller) {
+      if (page || limit || search || condition || category || seller || req.query.sort) {
         const pageNum = parseInt(page as string) || 1;
         const limitNum = parseInt(limit as string) || 10;
-        const result = await ProductService.getPaginatedProducts(pageNum, limitNum, query);
+        
+        let sortBy = { createdAt: -1 } as any;
+        if (req.query.sort === "price_asc") sortBy = { price: 1 };
+        if (req.query.sort === "price_desc") sortBy = { price: -1 };
+        if (req.query.sort === "name_asc") sortBy = { name: 1 };
+
+        const result = await ProductService.getPaginatedProducts(pageNum, limitNum, query, sortBy);
         return res.status(200).json(result);
       }
 

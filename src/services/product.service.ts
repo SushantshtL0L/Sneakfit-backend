@@ -10,10 +10,10 @@ export class ProductService {
     return await Product.find().populate("category").sort({ createdAt: -1 });
   }
 
-  static async getPaginatedProducts(page: number = 1, limit: number = 10, query: any = {}) {
+  static async getPaginatedProducts(page: number = 1, limit: number = 10, query: any = {}, sortBy: any = { createdAt: -1 }) {
     const skip = (page - 1) * limit;
     const [products, total] = await Promise.all([
-      Product.find(query).populate("category").sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Product.find(query).populate("category").sort(sortBy).skip(skip).limit(limit),
       Product.countDocuments(query),
     ]);
 
