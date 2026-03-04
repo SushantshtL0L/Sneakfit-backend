@@ -59,6 +59,17 @@ describe('Auth Integration Tests', () => {
             
             expect(response.status).toBe(409); // Conflict
         });
+
+        it('should fail if required fields are missing', async () => {
+            const response = await request(app)
+                .post('/api/auth/register')
+                .send({
+                    email: 'missing@test.com'
+                    // missing name, username, password
+                });
+            
+            expect(response.status).toBeGreaterThanOrEqual(400);
+        });
     });
 
     describe('POST /api/auth/login', () => {
@@ -77,6 +88,26 @@ describe('Auth Integration Tests', () => {
             
             expect(response.status).toBe(200);
             expect(response.body).toHaveProperty('token');
+        });
+
+        it('should fail login if email is missing', async () => {
+            const response = await request(app)
+                .post('/api/auth/login')
+                .send({
+                    password: testUser.password
+                });
+            
+            expect(response.status).toBeGreaterThanOrEqual(400);
+        });
+
+        it('should fail login if password is missing', async () => {
+            const response = await request(app)
+                .post('/api/auth/login')
+                .send({
+                    email: testUser.email
+                });
+            
+            expect(response.status).toBeGreaterThanOrEqual(400);
         });
 
         it('should fail login with incorrect password', async () => {
