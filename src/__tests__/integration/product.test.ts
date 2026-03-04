@@ -169,13 +169,92 @@ describe('Product Integration Tests', () => {
         });
     });
 
+    describe('GET /api/products with search and filters', () => {
+        it('should search products by name', async () => {
+            const response = await request(app)
+                .get('/api/products?search=Updated');
+            
+            expect(response.status).toBe(200);
+            expect(response.body.products).toBeDefined();
+            expect(response.body.products.some((p: any) => p.name.includes('Updated'))).toBe(true);
+        });
+
+        it('should filter products by condition', async () => {
+            const response = await request(app)
+                .get('/api/products?condition=new');
+            
+            expect(response.status).toBe(200);
+            expect(response.body.products).toBeDefined();
+            expect(response.body.products.every((p: any) => p.condition === 'new')).toBe(true);
+        });
+
+        it('should filter products by seller', async () => {
+            const response = await request(app)
+                .get(`/api/products?seller=${userId}`);
+            
+            expect(response.status).toBe(200);
+            expect(response.body.products).toBeDefined();
+            expect(response.body.products.every((p: any) => p.seller === userId)).toBe(true);
+        });
+
+        it('should paginate products', async () => {
+            const response = await request(app)
+                .get('/api/products?page=1&limit=1');
+            
+            expect(response.status).toBe(200);
+            expect(response.body.products.length).toBeLessThanOrEqual(1);
+            expect(response.body.totalPages).toBeDefined();
+        });
+
+        it('should sort products by price ascending', async () => {
+            const response = await request(app)
+                .get('/api/products?sort=price_asc');
+            
+            expect(response.status).toBe(200);
+            const prices = response.body.products.map((p: any) => p.price);
+            const sortedPrices = [...prices].sort((a, b) => a - b);
+            expect(prices).toEqual(sortedPrices);
+        });
+
+        it('should return error for invalid seller ID', async () => {
+            const response = await request(app)
+                .get('/api/products?seller=not-an-object-id');
+            
+            expect(response.status).toBe(200);
+            expect(response.body.products).toEqual([]);
+        });
+    });
+
+    describe('Product Ownership Authorization', () => {
+        it('should fail if unauthorized user tries to delete a product', async () => {
+             // Create another user
+             const otherUser = { name: 'Other', username: 'otheruser', email: 'other@test.com', password: 'Password123!' };
+             await request(app).post('/api/auth/register').send(otherUser);
+             const otherLogin = await request(app).post('/api/auth/login').send({
+                 email: otherUser.email, password: otherUser.password
+             });
+             const otherToken = otherLogin.body.token;
+
+             const response = await request(app)
+                .delete(`/api/products/${productId}`)
+                .set('Authorization', `Bearer ${otherToken}`);
+
+             expect(response.status).toBe(403);
+             expect(response.body.message).toBe("You are not authorized to delete this product");
+
+             // Cleanup
+             const { User } = require('../../models/user.model');
+             await User.deleteOne({ email: otherUser.email });
+        });
+    });
+
     describe('DELETE /api/products/:id', () => {
         it('should delete a product successfully', async () => {
             const response = await request(app)
                 .delete(`/api/products/${productId}`)
                 .set('Authorization', `Bearer ${authToken}`);
             
-            expect(response.status).toBe(200); // Or 204
+            expect(response.status).toBe(200);
             
             // Verify it's gone
             const getResponse = await request(app).get(`/api/products/${productId}`);
