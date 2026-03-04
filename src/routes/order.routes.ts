@@ -5,10 +5,6 @@ import { asyncHandler } from "../middlewares/async-handler";
 
 const router = Router();
 
-router.use((req, res, next) => {
-  console.log(`Order Route Hit: ${req.method} ${req.url}`);
-  next();
-});
 
 router.post("/", authMiddleware, asyncHandler(OrderController.createOrder));
 router.get("/my-orders", authMiddleware, asyncHandler(OrderController.getUserOrders));
