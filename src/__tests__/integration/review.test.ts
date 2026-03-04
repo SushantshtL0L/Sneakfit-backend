@@ -105,6 +105,18 @@ describe('Review Integration Tests', () => {
             
             expect(response.status).toBeGreaterThanOrEqual(400); 
         });
+
+        it('should fail if required fields are missing', async () => {
+            const response = await request(app)
+                .post('/api/reviews')
+                .set('Authorization', `Bearer ${authToken}`)
+                .send({
+                    product: productId
+                });
+            
+            expect(response.status).toBe(400);
+            expect(response.body.message).toBe("Missing required fields");
+        });
     });
 
     describe('GET /api/reviews/product/:productId', () => {
@@ -117,9 +129,48 @@ describe('Review Integration Tests', () => {
             expect(Array.isArray(response.body.data)).toBe(true);
             expect(response.body.data.length).toBeGreaterThan(0);
         });
+
+        it('should return empty list for product with no reviews', async () => {
+            const fakeProdId = new mongoose.Types.ObjectId();
+            const response = await request(app)
+                .get(`/api/reviews/product/${fakeProdId}`);
+            
+            expect(response.status).toBe(200);
+            expect(response.body.data).toEqual([]);
+        });
     });
 
     describe('DELETE /api/reviews/:id', () => {
+        it('should fail if unauthorized user tries to delete review', async () => {
+             // Create another user
+             const otherUser = { name: 'Other', username: 'otherreviewer', email: 'otherrev@test.com', password: 'Password123!' };
+             await request(app).post('/api/auth/register').send(otherUser);
+             const otherLogin = await request(app).post('/api/auth/login').send({
+                 email: otherUser.email, password: otherUser.password
+             });
+             const otherToken = otherLogin.body.token;
+
+             const response = await request(app)
+                .delete(`/api/reviews/${reviewId}`)
+                .set('Authorization', `Bearer ${otherToken}`);
+
+             expect(response.status).toBe(403);
+             expect(response.body.message).toBe("Unauthorized to delete this review");
+
+             // Cleanup
+             const { User } = require('../../models/user.model');
+             await User.deleteOne({ email: otherUser.email });
+        });
+
+        it('should return 404 for non-existent review', async () => {
+            const fakeId = new mongoose.Types.ObjectId();
+            const response = await request(app)
+                .delete(`/api/reviews/${fakeId}`)
+                .set('Authorization', `Bearer ${authToken}`);
+            
+            expect(response.status).toBe(404);
+        });
+
         it('should delete a review successfully', async () => {
             const response = await request(app)
                 .delete(`/api/reviews/${reviewId}`)

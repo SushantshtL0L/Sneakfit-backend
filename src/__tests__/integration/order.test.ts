@@ -120,14 +120,109 @@ describe('Order Integration Tests', () => {
         });
     });
 
+    describe('GET /api/orders/my-orders with Pagination', () => {
+        it('should fetch user orders with pagination', async () => {
+            const response = await request(app)
+                .get('/api/orders/my-orders?page=1&limit=5')
+                .set('Authorization', `Bearer ${userToken}`);
+            
+            expect(response.status).toBe(200);
+            expect(response.body.success).toBe(true);
+            expect(response.body.pagination).toBeDefined();
+            expect(response.body.pagination.page).toBe(1);
+            expect(response.body.pagination.limit).toBe(5);
+        });
+    });
+
+    describe('GET /api/orders/all status filtering', () => {
+        it('should filter orders by status', async () => {
+            const response = await request(app)
+                .get('/api/orders/all?status=pending')
+                .set('Authorization', `Bearer ${userToken}`);
+            
+            expect(response.status).toBe(200);
+            expect(response.body.success).toBe(true);
+            expect(response.body.stats).toBeDefined();
+        });
+    });
+
+    describe('GET /api/orders/stats', () => {
+        it('should fetch order statistics', async () => {
+            const response = await request(app)
+                .get('/api/orders/stats')
+                .set('Authorization', `Bearer ${userToken}`);
+            
+            expect(response.status).toBe(200);
+            expect(response.body.success).toBe(true);
+            expect(response.body.data).toHaveProperty('totalOrders');
+            expect(response.body.data).toHaveProperty('totalRevenue');
+        });
+    });
+
+    describe('GET /api/orders/chart', () => {
+        it('should fetch chart data for last 7 days', async () => {
+            const response = await request(app)
+                .get('/api/orders/chart')
+                .set('Authorization', `Bearer ${userToken}`);
+            
+            expect(response.status).toBe(200);
+            expect(response.body.success).toBe(true);
+            expect(Array.isArray(response.body.data)).toBe(true);
+            expect(response.body.data.length).toBe(7);
+        });
+    });
+
+    describe('PUT /api/orders/:id/status', () => {
+        it('should update order status', async () => {
+             // We use orderId which was created earlier
+            const response = await request(app)
+                .put(`/api/orders/${orderId}/status`)
+                .set('Authorization', `Bearer ${userToken}`)
+                .send({ status: 'processing' });
+            
+            expect(response.status).toBe(200);
+            expect(response.body.success).toBe(true);
+            expect(response.body.data.status).toBe('processing');
+        });
+
+        it('should return 400 for invalid status', async () => {
+            const response = await request(app)
+                .put(`/api/orders/${orderId}/status`)
+                .set('Authorization', `Bearer ${userToken}`)
+                .send({ status: 'invalid-status' });
+            
+            expect(response.status).toBe(400);
+        });
+    });
+
+    describe('DELETE /api/orders/:id', () => {
+        it('should fail to delete if not admin', async () => {
+            const response = await request(app)
+                .delete(`/api/orders/${orderId}`)
+                .set('Authorization', `Bearer ${userToken}`);
+            
+            expect(response.status).toBe(403);
+            expect(response.body.message).toBe('Only admins can delete orders');
+        });
+    });
+
     describe('PUT /api/orders/cancel/:id', () => {
-        it('should cancel an order', async () => {
+        it('should cancel an order successfully', async () => {
             const response = await request(app)
                 .put(`/api/orders/cancel/${orderId}`)
                 .set('Authorization', `Bearer ${userToken}`);
             
             expect(response.status).toBe(200);
             expect(response.body.success).toBe(true);
+        });
+
+        it('should fail to cancel a non-existent order', async () => {
+            const fakeId = new mongoose.Types.ObjectId();
+            const response = await request(app)
+                .put(`/api/orders/cancel/${fakeId}`)
+                .set('Authorization', `Bearer ${userToken}`);
+            
+            expect(response.status).toBe(404);
         });
     });
 });
