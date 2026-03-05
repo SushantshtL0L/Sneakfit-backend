@@ -11,9 +11,10 @@ export const connectDB = async (): Promise<void> => {
   }
 };
 
-export const connectDBTest = async (): Promise<void> => {
+export const connectDBTest = async (uri?: string): Promise<void> => {
   try {
-    await mongoose.connect(MONGODB_URI + "_test");
+    const connectUri = uri || MONGODB_URI + "_test";
+    await mongoose.connect(connectUri);
   } catch (error) {
     console.error("❌ Test MongoDB connection failed", error);
     process.exit(1);
